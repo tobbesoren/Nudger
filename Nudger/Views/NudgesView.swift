@@ -60,6 +60,16 @@ struct NudgesView: View {
                 Button(action: {
                     vm.setDone(nudge: nudge)
                 }) {
+                    // Change this to show actual date!
+                    // if date in nudge.datesDone:
+                    //      Image(systemName: Calendar.current.isDate(
+                    //              latestDone,
+                    //              inSameDayAs: Date(),
+                    //              toGranularity: .day)  ? "checkmark.square" : "square")
+                    
+                    
+                    
+                    
                     if let latestDone = nudge.doneDates.last {
                         Image(systemName: Calendar.current.isDate(latestDone, equalTo: Date(), toGranularity: .day)  ? "checkmark.square" : "square")
                     } else {

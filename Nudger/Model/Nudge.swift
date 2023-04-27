@@ -13,6 +13,7 @@ struct Nudge: Codable, Identifiable {
     var name: String
     var description: String
     var dateCreated: Date
+
     
     //Alt. 1:
     var streak: Int = 1

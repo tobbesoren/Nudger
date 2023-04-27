@@ -71,17 +71,19 @@ class NudgesVM: ObservableObject {
     
     func setCurrentNudges(date: Date) {
         currentNudges = []
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
         
         for nudge in nudges {
-            // If the nudge should be triggered today, add it to currentNudges
-            if Calendar.current.isDate(nudge.dateCreated, equalTo: date, toGranularity: .day) {
+            
+            // Sets all nudges created before or at this date to currentNudges.
+            // Converts dates to String to be able to compare them.
+            let dateCreatedString = dateFormatter.string(from: nudge.dateCreated)
+            let setDateString = dateFormatter.string(from: date)
+            
+            if dateCreatedString <= setDateString {
                 currentNudges.append(nudge)
             }
-        
-            
-//            if date == nudge.dateCreated {
-//                currentNudges.append(nudge)
-//            }
         }
         print("\(currentNudges.count)")
         
