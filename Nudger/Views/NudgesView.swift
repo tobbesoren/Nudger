@@ -1,58 +1,29 @@
 //
-//  ContentView.swift
+//  NudgesView.swift
 //  Nudger
 //
-//  Created by Tobias Sörensson on 2023-04-23.
+//  Created by Tobias Sörensson on 2023-04-27.
 //
 
 import SwiftUI
-import Firebase
-
-struct ContentView: View {
-    @State var signedIn = false
-    var body: some View {
-        if !signedIn {
-            SignInView(signedIn: $signedIn)
-        } else {
-            NudgesView()
-        }
-    }
-}
-
-
-struct SignInView: View {
-    @Binding var signedIn: Bool
-    var auth = Auth.auth()
-    
-    var body: some View {
-        Button(action: {
-            auth.signInAnonymously { result, error in
-                if let error {
-                    print(error)
-                } else {
-                    signedIn = true
-                }
-            }
-        }) {
-            Text("Sign in")
-        }
-    }
-}
-
 
 struct NudgesView: View {
     
     @StateObject var nudgesVM = NudgesVM()
     @State var showingAddAlert = false
     @State var newNudgeName = ""
-    @State var date = Date()
-    @State var todaysNudges: [Nudge]?
+    //@State var date = Date()
+    //@State var todaysNudges: [Nudge]?
     
     var body: some View {
         VStack {
-            DatePicker("Hmm", selection: $date)
+            DatePicker("Hmm", selection: $nudgesVM.date).onChange(of: nudgesVM.date) { date in
+                print(date)
+                // Call your function here
+                nudgesVM.setCurrentNudges(date: date)
+            }
             List {
-                ForEach(nudgesVM.nudges) { nudge in
+                ForEach(nudgesVM.currentNudges) { nudge in
                     RowView(nudge: nudge, vm: nudgesVM)
                 }
                 .onDelete() { indexSet in
@@ -63,12 +34,13 @@ struct NudgesView: View {
             }
             Button(action: {
                 showingAddAlert = true
+                print("!")
             }) {
                 Text("Add")
             }
             .alert("Add", isPresented: $showingAddAlert) {
                 TextField("Add", text: $newNudgeName)
-                Button("Add", action: { nudgesVM.saveToFirestore(nudgeName: newNudgeName, description: "---", dateCreated: date)
+                Button("Add", action: { nudgesVM.saveToFirestore(nudgeName: newNudgeName, description: "---", dateCreated: nudgesVM.date)
                     newNudgeName = ""
                 })
             }
@@ -76,10 +48,6 @@ struct NudgesView: View {
           nudgesVM.listenToFirestore()
         }
     }
-    
-    
-
-    
     
     private struct RowView: View {
         let nudge: Nudge
@@ -97,19 +65,15 @@ struct NudgesView: View {
                     } else {
                         Image(systemName: "square")
                     }
-                }.buttonStyle(.borderless)
+                }.buttonStyle(.borderless) // Needed so only the button is clickable and not the entire rowView!
             }
         }
     }
 }
 
 
-
-
-
-struct ContentView_Previews: PreviewProvider {
+struct NudgesView_Previews: PreviewProvider {
     static var previews: some View {
         NudgesView()
     }
 }
-

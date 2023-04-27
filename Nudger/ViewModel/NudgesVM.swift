@@ -10,9 +10,10 @@ import Firebase
 
 class NudgesVM: ObservableObject {
     @Published var nudges = [Nudge]()
+    @Published var date = Date()
     let db = Firestore.firestore()
     let auth = Auth.auth()
-    var currentNudges = [Nudge]()
+    @Published var currentNudges = [Nudge]()
     
     
     func setDone(nudge: Nudge) {
@@ -68,10 +69,21 @@ class NudgesVM: ObservableObject {
         }
     }
     
-    func setCurrentNudges() {
+    func setCurrentNudges(date: Date) {
+        currentNudges = []
+        
         for nudge in nudges {
             // If the nudge should be triggered today, add it to currentNudges
+            if Calendar.current.isDate(nudge.dateCreated, equalTo: date, toGranularity: .day) {
+                currentNudges.append(nudge)
+            }
+        
+            
+//            if date == nudge.dateCreated {
+//                currentNudges.append(nudge)
+//            }
         }
+        print("\(currentNudges.count)")
         
     }
     
@@ -97,7 +109,8 @@ class NudgesVM: ObservableObject {
                         print("Error generating list \(error)")
                     }
                 }
-                
+                self.setCurrentNudges(date: self.date)
+                print(self.nudges)
             }
         }
     }
