@@ -66,6 +66,11 @@ struct NudgesView: View {
                     //              latestDone,
                     //              inSameDayAs: Date(),
                     //              toGranularity: .day)  ? "checkmark.square" : "square")
+                    let calendar = Calendar.current
+                    if nudge.doneDates.contains(where: { calendar.isDate($0, inSameDayAs: vm.date) }) {
+                        
+                        Image(systemName: "exclamationmark.3")
+                    }
                     
                     
                     

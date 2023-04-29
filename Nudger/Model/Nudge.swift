@@ -13,10 +13,13 @@ struct Nudge: Codable, Identifiable {
     var name: String
     var description: String
     var dateCreated: Date
+    // Kanske skall ha ett endDate också? Så att nudge:en finns kvar även efter att man avslutat påminnelser etc.
+    // Så att man kan se historiken.
+    //var endDate: Date
 
     
     //Alt. 1:
-    var streak: Int = 1
+    var streak: Int = 0
     //var latestDone: Date
     //var nextDate: Date // Kanske bra att ha....?
        
@@ -32,7 +35,11 @@ struct Nudge: Codable, Identifiable {
     //          Om datumet är ett mindre, lägg till ett till streak.
     //          Om skillnaden är större, bryt loopen
     
+    //Som det är nu så är det möjligt att lägga till nudges i efterhand. Om man också skall kunna bocka för dem i efterhand
+    // så funkar det inte med en array eftersom datumen inte nödvändigtvis kommer i ordning.
     //Kanske blir det enklare ändå om jag använder en dictionary? Då kan jag toggla Date: Bool till true eller false.
+    //Kanske skall jag i så fall låta key vara en Int? Milliseconds since etc... Borde vara enklare att kolla efter en viss key då,
+    // funkar nog inte att ha en Date som key... Aaarggh. Eller vänta, har vi det lokalt så borde det ju gå! Hmmm
     var doneDates: [Date] = []
     
     // Alt. 3: Kombinera 1 och två:

@@ -19,15 +19,16 @@ class NudgesVM: ObservableObject {
     func setDone(nudge: Nudge) {
         guard let user = auth.currentUser else {return}
         let nudgeRef = db.collection("users").document(user.uid).collection("nudges")
-
+        
+        
+        //Maybe I should use a dictionary instead? Or a set.
         if let id = nudge.id {
             if let latestDone = nudge.doneDates.last {
                 if !Calendar.current.isDate(latestDone, equalTo: Date(), toGranularity: .day) {
-                    nudgeRef.document(id).updateData(["doneDates" : FieldValue.arrayUnion([Date()])])
+                    nudgeRef.document(id).updateData(["doneDates" : FieldValue.arrayUnion([date])])
                     return // Added missing return statement
                 } else {
-                    // Here i should add code for removing the last Date object for the list. Tricky, since Firebase doesn't save
-                    // them in the same format as Swift uses. If I get this to work, change func name to 'toggleDone'.
+                   //Here I should add the ability to toggle Done for the selected day.
                     return
                 }
             }
@@ -50,11 +51,13 @@ class NudgesVM: ObservableObject {
     
     
     func checkStreak() {
-        
+        // Should return the streak up to (the day before?) the selected day. The ability to setDone to
+        // past dates will complicate things.
     }
     
     func deleteDate(date: Date, nudgeRef: CollectionReference) {
         // Easier said than done!
+        // Not needed if I go for the dictionary.
     }
     
     
@@ -78,6 +81,7 @@ class NudgesVM: ObservableObject {
             
             // Sets all nudges created before or at this date to currentNudges.
             // Converts dates to String to be able to compare them.
+            // Maybe I could do this without the recasting, but not a priority right now.
             let dateCreatedString = dateFormatter.string(from: nudge.dateCreated)
             let setDateString = dateFormatter.string(from: date)
             
@@ -95,12 +99,12 @@ class NudgesVM: ObservableObject {
         let nudgeRef = db.collection("users").document(user.uid).collection("nudges")
         
         nudgeRef.addSnapshotListener() {
-            snapshot, err in
+            snapshot, error in
             
             guard let snapshot = snapshot else {return}
             
-            if let err = err {
-                print("Error getting document \(err)")
+            if let error = error {
+                print("Error getting document \(error)")
             } else {
                 self.nudges.removeAll()
                 for document in snapshot.documents {
