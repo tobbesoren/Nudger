@@ -42,6 +42,9 @@ struct Nudge: Codable, Identifiable {
     // funkar nog inte att ha en Date som key... Aaarggh. Eller vänta, har vi det lokalt så borde det ju gå! Hmmm
     var doneDates: [Date] = []
     
+    // Lets have a dictionary too!
+    var doneDictionary: [String: Bool] = [:]
+    
     // Alt. 3: Kombinera 1 och två:
     //  Använd alt. 1 men ha en lista som i alt 2.
     
@@ -58,6 +61,18 @@ struct Nudge: Codable, Identifiable {
     
     //var notifications:
     //var done: Bool = false
+    
+//    init(name: String, description: String, dateCreated: Date) {
+//        self.name = name
+//        self.description = description
+//        self.dateCreated = dateCreated
+//        let dateFormatter = DateFormatter()
+//        dateFormatter.dateFormat = "yyyy-MM-dd"
+//
+//        for date in doneDates {
+//            doneDictionary[dateFormatter.string(from: date)] = true
+//        }
+//    }
     
    
 }

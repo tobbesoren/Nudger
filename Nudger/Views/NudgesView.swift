@@ -17,7 +17,7 @@ struct NudgesView: View {
     
     var body: some View {
         VStack {
-            DatePicker("Hmm", selection: $nudgesVM.date).onChange(of: nudgesVM.date) { date in
+            DatePicker("Hmm", selection: $nudgesVM.date, displayedComponents: .date).onChange(of: nudgesVM.date) { date in
                 print(date)
                 // Call your function here
                 nudgesVM.setCurrentNudges(date: date)
