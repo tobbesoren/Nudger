@@ -52,6 +52,8 @@ struct NudgesView: View {
         var body: some View {
             HStack {
                 Text(nudge.name)
+                Spacer()
+                Text("Latest streak: \(nudge.streak)")
                 //Text("\(vm.date)")
                 Spacer()
                 Button(action: {
@@ -60,11 +62,16 @@ struct NudgesView: View {
                    
                     // This only works when I update all nudges on firestore from setCurrentNudges.
                     // If I only update the currentNudges array, my List will show the correct nudges, but the
-                    // individual rowViews won't update. I can't figure out why!!!
+                    // individual rowViews won't update.
                     // (I was checking whether the selected date was in doneDates before. Now, that approach also works,
                     // but I use the stored doneThisDay instead to at least pretend it serves a purpose.)
+                    
+                    // I think this has to do with the way forEach works - since the structs are the same unless I re-create them reading
+                    // from firestore, the rowViews won't update. Maybe. But on the other hand, I thought structs were copy-by-value,
+                    // and since I re-create currentNudges each time I select a date, it should be new objects. But, wasn't there something
+                    // about copying not occuring until one actually changed a value?! Complicated...
 
-                    Image(systemName: nudge.doneThisDay ? "checkmark.square" : "square")
+                    Image(systemName: nudge.doneDates.contains(where: { Calendar.current.isDate($0, inSameDayAs: vm.date) }) ? "checkmark.square" : "square")
                 
                 }.buttonStyle(.borderless) // Needed so only the button is clickable and not the entire rowView!
             }
