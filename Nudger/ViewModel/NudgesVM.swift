@@ -19,25 +19,17 @@ class NudgesVM: ObservableObject {
     func setDone(nudge: Nudge) {
         //It seems like it is possible to set done for different dates now.
         // Need to make it possible to toggle.
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        
+
         guard let user = auth.currentUser else {return}
         let nudgeRef = db.collection("users").document(user.uid).collection("nudges")
         
-        let setDateString = dateFormatter.string(from: self.date)
-        
+        let calendar = Calendar.current
         if let id = nudge.id {
-            for date in nudge.doneDates {
-                let dateString = dateFormatter.string(from: date)
-                
-                if dateString == setDateString { // If the date is already set, return. Should remove it first, but one step at a time.
-                    return
-                }
+            if nudge.doneDates.contains(where: { calendar.isDate($0, inSameDayAs: date) }) {
+                return
             }
             // If the date isn't set, set it!
             nudgeRef.document(id).updateData(["doneDates" : FieldValue.arrayUnion([self.date])])
-            
         }
     }
     
@@ -82,6 +74,11 @@ class NudgesVM: ObservableObject {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
         
+        guard let user = auth.currentUser else {return}
+        let nudgeRef = db.collection("users").document(user.uid).collection("nudges")
+        
+        let calendar = Calendar.current
+        
         for nudge in nudges {
             
             // Sets all nudges created before or at this date to currentNudges.
@@ -92,10 +89,19 @@ class NudgesVM: ObservableObject {
             
             if dateCreatedString <= setDateString {
                 currentNudges.append(nudge)
+                
+                // For some reason, only if I update firestore will my rowViews update the button image in nudgesView/rowView.
+                // That's why I have this code here. VERY frustrating!!!
+                if let id = nudge.id {
+                    if nudge.doneDates.contains(where: { calendar.isDate($0, inSameDayAs: date) }) {
+                        print("Ohoj")
+                        nudgeRef.document(id).updateData(["doneThisDay" : true])
+                    } else {
+                        nudgeRef.document(id).updateData(["doneThisDay" : false])
+                    }
+                }
             }
         }
-        print("\(currentNudges.count)")
-        
     }
     
     
@@ -121,7 +127,7 @@ class NudgesVM: ObservableObject {
                     }
                 }
                 self.setCurrentNudges(date: self.date)
-                print(self.nudges)
+                //print(self.nudges)
             }
         }
     }
