@@ -12,15 +12,11 @@ struct NudgesView: View {
     @StateObject var nudgesVM = NudgesVM()
     @State var showingAddAlert = false
     @State var newNudgeName = ""
-    //@State var date = Date()
-    //@State var todaysNudges: [Nudge]?
     
     var body: some View {
         VStack {
-            DatePicker("Hmm", selection: $nudgesVM.date).onChange(of: nudgesVM.date) { date in
-                print(date)
-                // Call your function here
-                nudgesVM.setCurrentNudges(date: date)
+            DatePicker("Hmm", selection: $nudgesVM.date, displayedComponents: .date).onChange(of: nudgesVM.date) { date in
+             nudgesVM.setCurrentNudges(date: date)
             }
             List {
                 ForEach(nudgesVM.currentNudges) { nudge in
@@ -56,15 +52,20 @@ struct NudgesView: View {
         var body: some View {
             HStack {
                 Text(nudge.name)
+                //Text("\(vm.date)")
                 Spacer()
                 Button(action: {
                     vm.setDone(nudge: nudge)
                 }) {
-                    if let latestDone = nudge.doneDates.last {
-                        Image(systemName: Calendar.current.isDate(latestDone, equalTo: Date(), toGranularity: .day)  ? "checkmark.square" : "square")
-                    } else {
-                        Image(systemName: "square")
-                    }
+                   
+                    // This only works when I update all nudges on firestore from setCurrentNudges.
+                    // If I only update the currentNudges array, my List will show the correct nudges, but the
+                    // individual rowViews won't update. I can't figure out why!!!
+                    // (I was checking whether the selected date was in doneDates before. Now, that approach also works,
+                    // but I use the stored doneThisDay instead to at least pretend it serves a purpose.)
+
+                    Image(systemName: nudge.doneThisDay ? "checkmark.square" : "square")
+                
                 }.buttonStyle(.borderless) // Needed so only the button is clickable and not the entire rowView!
             }
         }
