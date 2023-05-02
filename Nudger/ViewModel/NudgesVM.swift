@@ -42,16 +42,14 @@ class NudgesVM: ObservableObject {
             if nudge.doneDates.contains(where: { calendar.isDate($0, inSameDayAs: date) }) {
                 let dateToDelete = nudge.doneDates.first(where: {calendar.isDate($0, inSameDayAs: date)})
                 doneDates.removeAll{ $0 == dateToDelete }
-                nudgeRef.document(id).updateData(["doneDates" : doneDates])
-                return
+                
             } else {
                 // Append new date and sort list before updating firestore. We want those dates in order!
                 
                 doneDates.append(date)
                 doneDates.sort()
-                nudgeRef.document(id).updateData(["doneDates" : doneDates])
             }
-           
+            nudgeRef.document(id).updateData(["doneDates" : doneDates])
         }
     }
     
