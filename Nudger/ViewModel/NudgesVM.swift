@@ -28,7 +28,8 @@ class NudgesVM: ObservableObject {
         //It seems like it is possible to set done for different dates now.
         // Now it is possible to toggle, but I need to figure out a way
         // to update firestore without calling functions multiple times. I seem to have set up
-        // som kind of ring.
+        // some kind of ring. When this function updates firestore,
+        // snapShotlistener is triggered and calls setCurrentNudges, which updates firestore again...
 
         guard let user = auth.currentUser else {return}
         let nudgeRef = db.collection("users").document(user.uid).collection("nudges")
@@ -122,9 +123,7 @@ class NudgesVM: ObservableObject {
         
         guard let user = auth.currentUser else {return}
         let nudgeRef = db.collection("users").document(user.uid).collection("nudges")
-//
-//        let calendar = Calendar.current
-        
+
         for nudge in nudges {
             
             // Sets all nudges created before or at this date to currentNudges.
@@ -135,23 +134,10 @@ class NudgesVM: ObservableObject {
             
             if dateCreatedString <= setDateString {
                 currentNudges.append(nudge)
+                // Checks streak and updates firestore
                 let streak = checkStreak(nudge: nudge)
-               
-                
-                // For some reason, only if I update firestore will my rowViews update the button image in nudgesView/rowView.
-                // That's why I have this code here. VERY frustrating!!!
-                
-                // I just realized that updating doneThisDay triggers the snapShotListener which in turn calls this function again. Not
-                // good.
                 if let id = nudge.id {
                    nudgeRef.document(id).updateData(["streak" : streak])
-//                    if nudge.doneDates.contains(where: { calendar.isDate($0, inSameDayAs: date) }) {
-//                        print("Ohoj")
-//                        nudgeRef.document(id).updateData(["doneThisDay" : true])
-//                    } else {
-//                        nudgeRef.document(id).updateData(["doneThisDay" : false])
-//                        print("Nehej")
-//                    }
                 }
             }
         }

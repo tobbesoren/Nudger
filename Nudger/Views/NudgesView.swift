@@ -28,6 +28,7 @@ struct NudgesView: View {
                     }
                 }
             }
+            .listStyle(InsetGroupedListStyle())
             Button(action: {
                 showingAddAlert = true
                 print("!")
