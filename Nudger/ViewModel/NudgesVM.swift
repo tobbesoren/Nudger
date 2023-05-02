@@ -8,6 +8,14 @@
 import Foundation
 import Firebase
 
+// this way, we can easily get yesterday's date. Used by checkStreak.
+extension Date {
+    var yesterday: Date {
+            return Calendar.current.date(byAdding: .day, value: -1, to: self)!
+        }
+}
+
+
 class NudgesVM: ObservableObject {
     @Published var nudges = [Nudge]()
     @Published var date = Date()
@@ -18,18 +26,30 @@ class NudgesVM: ObservableObject {
     
     func setDone(nudge: Nudge) {
         //It seems like it is possible to set done for different dates now.
-        // Need to make it possible to toggle.
+        // Now it is possible to toggle, but I need to figure out a way
+        // to update firestore without calling functions multiple times. I seem to have set up
+        // some kind of ring. When this function updates firestore,
+        // snapShotlistener is triggered and calls setCurrentNudges, which updates firestore again...
 
         guard let user = auth.currentUser else {return}
         let nudgeRef = db.collection("users").document(user.uid).collection("nudges")
         
         let calendar = Calendar.current
+        
+        var doneDates = nudge.doneDates
+        
         if let id = nudge.id {
             if nudge.doneDates.contains(where: { calendar.isDate($0, inSameDayAs: date) }) {
-                return
+                let dateToDelete = nudge.doneDates.first(where: {calendar.isDate($0, inSameDayAs: date)})
+                doneDates.removeAll{ $0 == dateToDelete }
+                
+            } else {
+                // Append new date and sort list before updating firestore. We want those dates in order!
+                
+                doneDates.append(date)
+                doneDates.sort()
             }
-            // If the date isn't set, set it!
-            nudgeRef.document(id).updateData(["doneDates" : FieldValue.arrayUnion([self.date])])
+            nudgeRef.document(id).updateData(["doneDates" : doneDates])
         }
     }
     
@@ -46,10 +66,35 @@ class NudgesVM: ObservableObject {
         }
     }
     
-    
-    func checkStreak() {
-        // Should return the streak up to (the day before?) the selected day. The ability to setDone to
-        // past dates will complicate things.
+    func checkStreak(nudge: Nudge) -> Int {
+        // Return the streak up to (the day before) and/or the CURRENT day, an Int. This means the streak won't
+        // be resetted until tomorrow; you have the entire day to finish the task.
+        // At the moment, it IS possible to select days in the future and set Done for those days.
+        // Those future Done days will not be counted until we reach the days in question.
+        
+        // I'm thinking this function could also set the color of the tasks: Maybe green for tasks done today;
+        // yellow for tasks with a streak over 1 but not yet done today;
+        // and red or orange (or maybe the less aggressive blue) for tasks with a streak of 0.
+        var checkNext = true
+        var currentStreak = 0
+        let calendar = Calendar.current
+
+        var yesterday = Date().yesterday
+        
+        while checkNext {
+            if nudge.doneDates.contains(where: { calendar.isDate($0, inSameDayAs: yesterday) }) {
+                yesterday = yesterday.yesterday
+                currentStreak += 1
+            } else {
+                checkNext = false
+            }
+        }
+        if nudge.doneDates.contains(where: { calendar.isDate($0, inSameDayAs: Date()) }) {
+            currentStreak += 1
+        }
+        
+        print("\(nudge.name) \(currentStreak)")
+        return currentStreak
     }
     
     func deleteDate(date: Date, nudgeRef: CollectionReference) {
@@ -76,9 +121,7 @@ class NudgesVM: ObservableObject {
         
         guard let user = auth.currentUser else {return}
         let nudgeRef = db.collection("users").document(user.uid).collection("nudges")
-        
-        let calendar = Calendar.current
-        
+
         for nudge in nudges {
             
             // Sets all nudges created before or at this date to currentNudges.
@@ -89,16 +132,10 @@ class NudgesVM: ObservableObject {
             
             if dateCreatedString <= setDateString {
                 currentNudges.append(nudge)
-                
-                // For some reason, only if I update firestore will my rowViews update the button image in nudgesView/rowView.
-                // That's why I have this code here. VERY frustrating!!!
+                // Checks streak and updates firestore
+                let streak = checkStreak(nudge: nudge)
                 if let id = nudge.id {
-                    if nudge.doneDates.contains(where: { calendar.isDate($0, inSameDayAs: date) }) {
-                        print("Ohoj")
-                        nudgeRef.document(id).updateData(["doneThisDay" : true])
-                    } else {
-                        nudgeRef.document(id).updateData(["doneThisDay" : false])
-                    }
+                   nudgeRef.document(id).updateData(["streak" : streak])
                 }
             }
         }
