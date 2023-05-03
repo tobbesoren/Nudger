@@ -10,16 +10,19 @@ import SwiftUI
 struct NudgesView: View {
     
     @StateObject var nudgesVM = NudgesVM()
-    @State var showingAddAlert = false
-    @State var newNudgeName = ""
+    @State var showingAddSheet = false
+    //@State var newNudgeName = ""
+    @StateObject private var notificationManager = NotificationManager()
+    //@State var timeSet = Date()
     
     var body: some View {
         VStack {
-            DatePicker("Hmm", selection: $nudgesVM.date, displayedComponents: .date).onChange(of: nudgesVM.date) { date in
-             nudgesVM.setCurrentNudges(date: date)
+            DatePicker("", selection: $nudgesVM.date, displayedComponents: .date).onChange(of: nudgesVM.date) { date in
+                //nudgesVM.setCurrentNudges(date: date)
             }
+            .padding()
             List {
-                ForEach(nudgesVM.currentNudges) { nudge in
+                ForEach(nudgesVM.nudges) { nudge in
                     RowView(nudge: nudge, vm: nudgesVM)
                 }
                 .onDelete() { indexSet in
@@ -30,55 +33,60 @@ struct NudgesView: View {
             }
             .listStyle(InsetGroupedListStyle())
             Button(action: {
-                showingAddAlert = true
+                showingAddSheet = true
                 print("!")
             }) {
                 Text("Add")
             }
-            .alert("Add", isPresented: $showingAddAlert) {
-                TextField("Add", text: $newNudgeName)
-                Button("Add", action: { nudgesVM.saveToFirestore(nudgeName: newNudgeName, description: "---", dateCreated: nudgesVM.date)
-                    newNudgeName = ""
-                })
+            .sheet(isPresented: $showingAddSheet) {
+                NavigationView {
+                    AddNudgeView(notificationManager: notificationManager, nudgesVM: nudgesVM, isPresented: $showingAddSheet)
+                }
             }
-        }.onAppear() {
-          nudgesVM.listenToFirestore()
+        }.onAppear {
+            notificationManager.reloadAuthorizationStatus()
+            nudgesVM.listenToFirestore()
         }
-    }
-    
-    private struct RowView: View {
-        let nudge: Nudge
-        let vm: NudgesVM
-        
-        var body: some View {
-            HStack {
-                Text(nudge.name)
-                Spacer()
-                Text("Latest streak: \(nudge.streak)")
-                //Text("\(vm.date)")
-                Spacer()
-                Button(action: {
-                    vm.setDone(nudge: nudge)
-                }) {
-                   
-                    // This only works when I update all nudges on firestore from setCurrentNudges.
-                    // If I only update the currentNudges array, my List will show the correct nudges, but the
-                    // individual rowViews won't update.
-                    // (I was checking whether the selected date was in doneDates before. Now, that approach also works,
-                    // but I use the stored doneThisDay instead to at least pretend it serves a purpose.)
-                    
-                    // I think this has to do with the way forEach works - since the structs are the same unless I re-create them reading
-                    // from firestore, the rowViews won't update. Maybe. But on the other hand, I thought structs were copy-by-value,
-                    // and since I re-create currentNudges each time I select a date, it should be new objects. But, wasn't there something
-                    // about copying not occuring until one actually changed a value?! Complicated...
-
-                    Image(systemName: nudge.doneDates.contains(where: { Calendar.current.isDate($0, inSameDayAs: vm.date) }) ? "checkmark.square" : "square")
-                
-                }.buttonStyle(.borderless) // Needed so only the button is clickable and not the entire rowView!
+        .onChange(of: notificationManager.authorizationStatus) { authorizationStatus in
+            switch authorizationStatus {
+            case .notDetermined:
+                notificationManager.requestAuthorization()
+            case .authorized:
+                notificationManager.reloadLocalNotifications()
+            default:
+                break
             }
+        }
+        
+    }
+}
+
+private struct RowView: View {
+    let nudge: Nudge
+    let vm: NudgesVM
+    //@State var done = false
+    var body: some View {
+        
+        HStack {
+            Text(nudge.name)
+            Spacer()
+            Text("Streak: \(nudge.getStreak())")
+            //Text("\(vm.date)")
+            Spacer()
+            Button(action: {
+            //done = !nudge.doneDates.contains(where: { Calendar.current.isDate($0, inSameDayAs: vm.date) })
+                //print(done)
+                vm.setDone(nudge: nudge)
+            }) {
+                // I seem to have a bug: If I create a nudge set in a future date, the checkmark doesn't update when I change date.
+                // Oh, well, nothing seem to update as it should.
+                Image(systemName: nudge.doneDates.contains(where: { Calendar.current.isDate($0, inSameDayAs: vm.date) }) ? "checkmark.square" : "square")
+                
+            }.buttonStyle(.borderless) // Needed so only the button is clickable and not the entire rowView!
         }
     }
 }
+
 
 
 struct NudgesView_Previews: PreviewProvider {

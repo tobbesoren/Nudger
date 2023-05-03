@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9C0B54282A01647B00FCF78C /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C0B54272A01647B00FCF78C /* NotificationManager.swift */; };
+		9C0B542A2A0165D200FCF78C /* AddNudgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C0B54292A0165D200FCF78C /* AddNudgeView.swift */; };
+		9C0B542C2A01661100FCF78C /* NoNotificationsPermission.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C0B542B2A01661100FCF78C /* NoNotificationsPermission.swift */; };
 		9C3E7DB429F54B6A00E09AC4 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 9C3E7DB329F54B6A00E09AC4 /* FirebaseAuth */; };
 		9C3E7DB629F54B6A00E09AC4 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 9C3E7DB529F54B6A00E09AC4 /* FirebaseFirestore */; };
 		9C3E7DB829F54B6A00E09AC4 /* FirebaseFirestoreSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 9C3E7DB729F54B6A00E09AC4 /* FirebaseFirestoreSwift */; };
@@ -42,6 +45,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9C0B54272A01647B00FCF78C /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		9C0B54292A0165D200FCF78C /* AddNudgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNudgeView.swift; sourceTree = "<group>"; };
+		9C0B542B2A01661100FCF78C /* NoNotificationsPermission.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoNotificationsPermission.swift; sourceTree = "<group>"; };
 		9C3E7DBB29F54F0400E09AC4 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		9C3F95EC29F5512A00DE7ABE /* Nudge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nudge.swift; sourceTree = "<group>"; };
 		9C3F95EE29F5516700DE7ABE /* NudgesVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NudgesVM.swift; sourceTree = "<group>"; };
@@ -91,6 +97,7 @@
 			isa = PBXGroup;
 			children = (
 				9C3F95EC29F5512A00DE7ABE /* Nudge.swift */,
+				9C0B54272A01647B00FCF78C /* NotificationManager.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -109,6 +116,8 @@
 				9C3F95F429FA8D6200DE7ABE /* SignInView.swift */,
 				9C9BB36429F52A57000F6F6C /* ContentView.swift */,
 				9C3F95F729FA919300DE7ABE /* NudgesView.swift */,
+				9C0B54292A0165D200FCF78C /* AddNudgeView.swift */,
+				9C0B542B2A01661100FCF78C /* NoNotificationsPermission.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -311,10 +320,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9C0B542C2A01661100FCF78C /* NoNotificationsPermission.swift in Sources */,
 				9C9BB36529F52A57000F6F6C /* ContentView.swift in Sources */,
 				9C3F95ED29F5512A00DE7ABE /* Nudge.swift in Sources */,
 				9C3F95F829FA919300DE7ABE /* NudgesView.swift in Sources */,
 				9C3F95EF29F5516700DE7ABE /* NudgesVM.swift in Sources */,
+				9C0B542A2A0165D200FCF78C /* AddNudgeView.swift in Sources */,
+				9C0B54282A01647B00FCF78C /* NotificationManager.swift in Sources */,
 				9C9BB36329F52A57000F6F6C /* NudgerApp.swift in Sources */,
 				9C3F95F529FA8D6200DE7ABE /* SignInView.swift in Sources */,
 			);
