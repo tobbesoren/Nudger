@@ -12,6 +12,7 @@ struct SignInView: View {
     @Binding var signedIn: Bool
     var auth = Auth.auth()
     
+    
     var body: some View {
         Button(action: {
             auth.signInAnonymously { result, error in
@@ -24,7 +25,9 @@ struct SignInView: View {
         }) {
             Text("Sign in")
         }
-    }
+        .onAppear {
+            
+        }    }
 }
 
 struct SignInView_Previews: PreviewProvider {

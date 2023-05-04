@@ -9,8 +9,8 @@ import Foundation
 import UserNotifications
 
 class NotificationManager: ObservableObject {
-    @Published private var notifications: [UNNotificationRequest] = []
-    @Published var authorizationStatus: UNAuthorizationStatus?
+    @Published private(set) var notifications: [UNNotificationRequest] = []
+    @Published private(set) var authorizationStatus: UNAuthorizationStatus?
     
     func reloadAuthorizationStatus() {
         UNUserNotificationCenter.current().getNotificationSettings { settings in

@@ -45,17 +45,20 @@ class NudgesVM: ObservableObject {
                 doneDates.sort()
             }
             nudgeRef.document(id).updateData(["doneDates" : doneDates])
+            getNudgesFromFirestore()
         }
     }
     
     
-    func saveToFirestore(nudgeName: String, dateCreated: Date) {
+    func saveToFirestore(nudgeName: String, dateCreated: Date, reminderTime: String) {
         guard let user = auth.currentUser else {return}
         let nudgeRef = db.collection("users").document(user.uid).collection("nudges")
         
-        let nudge = Nudge(name: nudgeName, dateCreated: dateCreated)
+        let nudge = Nudge(name: nudgeName, dateCreated: dateCreated, reminderTime: reminderTime)
         do {
-            let _ = try nudgeRef.addDocument(from: nudge)
+            let _ = try nudgeRef.addDocument(from: nudge) {_ in
+                self.getNudgesFromFirestore()
+            }
         } catch {
             print("Error saving to db.\(error)")
         }
@@ -74,12 +77,16 @@ class NudgesVM: ObservableObject {
     }
     
     
-    func listenToFirestore() {
+    func getNudgesFromFirestore() {
+        // So, the dates are acting up. Seems date isn't using the correct timezone.
         guard let user = auth.currentUser else {return}
         let nudgeRef = db.collection("users").document(user.uid).collection("nudges")
+        //guard let rawDate = Calendar.current.date(from: Calendar.current.dateComponents([.year, .month, .day], from: date)) else {return}
         let dateQuery = nudgeRef.whereField("dateCreated", isLessThanOrEqualTo: date)
+        print(date)
+        //print(rawDate)
         
-        dateQuery.addSnapshotListener() {
+        dateQuery.getDocuments() {
             snapshot, error in
             
             guard let snapshot = snapshot else {return}
@@ -92,6 +99,7 @@ class NudgesVM: ObservableObject {
                     do {
                         let nudge = try document.data(as: Nudge.self)
                         self.nudges.append(nudge)
+                        print(nudge.doneDates.contains(where: { Calendar.current.isDate($0, inSameDayAs: self.date) }))
                     } catch {
                         print("Error generating list \(error)")
                     }

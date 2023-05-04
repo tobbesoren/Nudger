@@ -27,8 +27,21 @@ struct AddNudgeView: View {
                 }
                 .padding()
                 Spacer()
-                Button("Add", action: { nudgesVM.saveToFirestore(nudgeName: title, dateCreated: nudgesVM.date)
-                // Save notification!
+                Button("Add", action: {
+                    
+                    // Save notification!
+                    let dateComponents = Calendar.current.dateComponents([.hour, .minute], from: date)
+                    let dateFormatter = DateFormatter()
+                    dateFormatter.timeStyle = .short
+                    
+                    let reminderTime = dateFormatter.string(from: date)
+                    nudgesVM.saveToFirestore(nudgeName: title, dateCreated: nudgesVM.date, reminderTime: reminderTime)
+                    guard let hour = dateComponents.hour, let minute = dateComponents.minute else {return}
+                    notificationManager.createLocalNotification(title: title, hour: hour, minute: minute) { error in
+                        if let error {
+                            print(error)
+                        }
+                    }
                 isPresented = false
                 })
             }

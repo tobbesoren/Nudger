@@ -10,6 +10,8 @@ import Firebase
 
 struct ContentView: View {
     @State var signedIn = false
+    @State var showingNoPermissionSheet = true
+    
     var body: some View {
         if !signedIn {
             SignInView(signedIn: $signedIn)

@@ -11,11 +11,9 @@ import FirebaseFirestoreSwift
 struct Nudge: Codable, Identifiable {
     @DocumentID var id: String?
     var name: String
-    // I don't think I will use this.
-    // var description: String
     var dateCreated: Date
-    var streak: Int = 0
     var doneDates: [Date] = []
+    var reminderTime: String
     
     
     func getStreak() -> Int {
@@ -40,7 +38,12 @@ struct Nudge: Codable, Identifiable {
             currentStreak += 1
         }
         
-        print("\(name) \(currentStreak)")
+        //print("\(name) \(currentStreak)")
         return currentStreak
+    }
+    
+    
+    func getDoneThisDay(date: Date) -> Bool {
+        return doneDates.contains(where: { Calendar.current.isDate($0, inSameDayAs: date) })
     }
 }
