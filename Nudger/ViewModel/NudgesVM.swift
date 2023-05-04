@@ -73,6 +73,7 @@ class NudgesVM: ObservableObject {
         
         if let id = nudge.id {
             nudgeRef.document(id).delete()
+            getNudgesFromFirestore()
         }
     }
     

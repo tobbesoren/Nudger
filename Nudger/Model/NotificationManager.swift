@@ -38,6 +38,7 @@ class NotificationManager: ObservableObject {
         }
     }
     
+    
     func createLocalNotification(title: String, hour: Int, minute: Int, completion: @escaping (Error?) -> Void) {
         var dateComponents = DateComponents()
         dateComponents.hour = hour
@@ -58,6 +59,12 @@ class NotificationManager: ObservableObject {
         // Here we add the notification
         UNUserNotificationCenter.current().add(request, withCompletionHandler: completion)
     }
+    
+   
+        func delete(_ indexSet: IndexSet) {
+            
+        }
+    
     
     func deleteLocalNotifications(identifiers: [String]) {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: identifiers)

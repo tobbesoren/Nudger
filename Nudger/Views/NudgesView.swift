@@ -14,6 +14,17 @@ struct NudgesView: View {
     @StateObject private var notificationManager = NotificationManager()
     @State var showingNoPermissionView = true
     
+    private static var notificationDateFormatter: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.timeStyle = .short
+        return dateFormatter
+    }()
+    
+    private func timeDisplayText(from notification: UNNotificationRequest) -> String {
+        guard let nextTriggerDate = (notification.trigger as? UNCalendarNotificationTrigger)?.nextTriggerDate() else {return ""}
+        return Self.notificationDateFormatter.string(from: nextTriggerDate)
+    }
+    
     var body: some View {
      
             VStack {
@@ -30,9 +41,24 @@ struct NudgesView: View {
                         for index in indexSet {
                             nudgesVM.deleteFromFirestore(index: index)
                         }
+                        notificationManager.deleteLocalNotifications(
+                            identifiers: indexSet.map {notificationManager.notifications[$0].identifier}
+                        )
+                        notificationManager.reloadLocalNotifications()
                     }
                 }
                 .listStyle(InsetGroupedListStyle())
+                List {
+                    ForEach(notificationManager.notifications, id: \.identifier) { notification in
+                        HStack {
+                            Text(notification.content.title)
+                                .fontWeight(.semibold)
+                            Text(timeDisplayText(from: notification))
+                                .fontWeight(.bold)
+                            Spacer()
+                        }
+                    }
+                }
                 Button(action: {
                     showingAddSheet = true
                     print("!")

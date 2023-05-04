@@ -36,6 +36,7 @@ struct AddNudgeView: View {
                     
                     let reminderTime = dateFormatter.string(from: date)
                     nudgesVM.saveToFirestore(nudgeName: title, dateCreated: nudgesVM.date, reminderTime: reminderTime)
+                    
                     guard let hour = dateComponents.hour, let minute = dateComponents.minute else {return}
                     notificationManager.createLocalNotification(title: title, hour: hour, minute: minute) { error in
                         if let error {
@@ -45,6 +46,9 @@ struct AddNudgeView: View {
                 isPresented = false
                 })
             }
+            .onDisappear {
+                notificationManager.reloadLocalNotifications()
+            }
         }
         .navigationBarItems(trailing: Button {
                 isPresented = false
@@ -52,6 +56,7 @@ struct AddNudgeView: View {
                 Image(systemName: "xmark")
             })
     }
+        
 }
 
 struct AddNudgeView_Previews: PreviewProvider {
