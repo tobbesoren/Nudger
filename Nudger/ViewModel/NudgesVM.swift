@@ -79,7 +79,8 @@ class NudgesVM: ObservableObject {
     
     
     func getNudgesFromFirestore() {
-        // So, the dates are acting up. Seems date isn't using the correct timezone.
+        // So, the dates are acting up. Seems date isn't using the correct timezone. When changing date, the nudges created the selected
+        // day don't show up. However, when first starting the app, they show. Frustrating!
         guard let user = auth.currentUser else {return}
         let nudgeRef = db.collection("users").document(user.uid).collection("nudges")
         //guard let rawDate = Calendar.current.date(from: Calendar.current.dateComponents([.year, .month, .day], from: date)) else {return}
@@ -101,11 +102,12 @@ class NudgesVM: ObservableObject {
                         let nudge = try document.data(as: Nudge.self)
                         self.nudges.append(nudge)
                         print(nudge.doneDates.contains(where: { Calendar.current.isDate($0, inSameDayAs: self.date) }))
+                        print(self.nudges)
                     } catch {
                         print("Error generating list \(error)")
                     }
                 }
-                //print(self.nudges)
+                
             }
         }
     }

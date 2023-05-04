@@ -46,6 +46,7 @@ struct AddNudgeView: View {
                 isPresented = false
                 })
             }
+            // Almost forgot...
             .onDisappear {
                 notificationManager.reloadLocalNotifications()
             }

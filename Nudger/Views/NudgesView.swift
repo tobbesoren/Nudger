@@ -12,7 +12,8 @@ struct NudgesView: View {
     @StateObject var nudgesVM = NudgesVM()
     @State var showingAddSheet = false
     @StateObject private var notificationManager = NotificationManager()
-    @State var showingNoPermissionView = true
+    @State var showingNoPermissionView = false
+    @State var localNudges: [Nudge]?
     
     private static var notificationDateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
@@ -33,10 +34,14 @@ struct NudgesView: View {
                     nudgesVM.getNudgesFromFirestore()
                 }
                 .padding()
+                
+                // Listan uppdaterar inte som den skall när man byter datum. Kan vara så att läsningen från firestore inte hänger med?
+                // Det som inte hänger med är checkboxen.
                 List {
                     ForEach(nudgesVM.nudges) { nudge in
                         RowView(nudge: nudge, vm: nudgesVM)
                     }
+                    
                     .onDelete() { indexSet in
                         for index in indexSet {
                             nudgesVM.deleteFromFirestore(index: index)
@@ -48,14 +53,21 @@ struct NudgesView: View {
                     }
                 }
                 .listStyle(InsetGroupedListStyle())
-                List {
-                    ForEach(notificationManager.notifications, id: \.identifier) { notification in
-                        HStack {
-                            Text(notification.content.title)
-                                .fontWeight(.semibold)
-                            Text(timeDisplayText(from: notification))
-                                .fontWeight(.bold)
-                            Spacer()
+//                .onChange(of: nudgesVM.nudges) { nudges in
+//                    localNudges = nudges
+//
+//                }
+                VStack {
+                    Text("Set Reminders")
+                    List {
+                        ForEach(notificationManager.notifications, id: \.identifier) { notification in
+                            HStack {
+                                Text(notification.content.title)
+                                    .fontWeight(.semibold)
+                                Text(timeDisplayText(from: notification))
+                                    .fontWeight(.bold)
+                                Spacer()
+                            }
                         }
                     }
                 }
@@ -76,9 +88,12 @@ struct NudgesView: View {
                     }
                 }
             }.onAppear {
+                localNudges = nudgesVM.nudges
                 notificationManager.reloadAuthorizationStatus()
                 if notificationManager.authorizationStatus == .authorized {
                     showingNoPermissionView = false
+                } else {
+                    showingNoPermissionView = true
                 }
                 nudgesVM.getNudgesFromFirestore()
             }
@@ -122,7 +137,7 @@ private struct RowView: View {
                 vm.setDone(nudge: nudge)
                 
             }) {
-                // I seem to have a bug: If I create a nudge set in a future date, the checkmark doesn't update when I change date.
+                // I seem to have a bug: (If I create a nudge set in a future date,) the checkmark doesn't update when I change date.
                 // Oh, well, nothing seem to update as it should.
                 
                 Image(systemName: nudge.getDoneThisDay(date: vm.date) ? "checkmark.square" : "square")

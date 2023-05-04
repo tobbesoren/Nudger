@@ -8,12 +8,22 @@
 import Foundation
 import FirebaseFirestoreSwift
 
-struct Nudge: Codable, Identifiable {
+struct Nudge: Codable, Identifiable, Equatable {
     @DocumentID var id: String?
     var name: String
     var dateCreated: Date
     var doneDates: [Date] = []
     var reminderTime: String
+    // For a minute I thought this was the solution to my update rowView problem, but then it started acting up again.
+    var uid: String
+    
+    init(name: String, dateCreated: Date, reminderTime: String) {
+        self.name = name
+        self.dateCreated = dateCreated
+        self.reminderTime = reminderTime
+        
+        self.uid = UUID().uuidString
+    }
     
     
     func getStreak() -> Int {
