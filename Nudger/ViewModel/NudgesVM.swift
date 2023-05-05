@@ -24,7 +24,7 @@ class NudgesVM: ObservableObject {
     //@Published var currentNudges = [Nudge]()
     
     
-    func setDone(nudge: Nudge) {
+    func toggleDoneThisDay(nudge: Nudge) {
 
         guard let user = auth.currentUser else {return}
         let nudgeRef = db.collection("users").document(user.uid).collection("nudges")
@@ -85,7 +85,7 @@ class NudgesVM: ObservableObject {
         let nudgeRef = db.collection("users").document(user.uid).collection("nudges")
         //guard let rawDate = Calendar.current.date(from: Calendar.current.dateComponents([.year, .month, .day], from: date)) else {return}
         let dateQuery = nudgeRef.whereField("dateCreated", isLessThanOrEqualTo: date)
-        print(date)
+        //print(date)
         //print(rawDate)
         
         dateQuery.getDocuments() {
@@ -101,8 +101,6 @@ class NudgesVM: ObservableObject {
                     do {
                         let nudge = try document.data(as: Nudge.self)
                         self.nudges.append(nudge)
-                        print(nudge.doneDates.contains(where: { Calendar.current.isDate($0, inSameDayAs: self.date) }))
-                        print(self.nudges)
                     } catch {
                         print("Error generating list \(error)")
                     }

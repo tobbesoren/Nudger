@@ -14,20 +14,29 @@ struct SignInView: View {
     
     
     var body: some View {
-        Button(action: {
-            auth.signInAnonymously { result, error in
-                if let error {
-                    print(error)
-                } else {
-                    signedIn = true
+        VStack {
+            Spacer()
+            Text("Nudger")
+                .fontWeight(.semibold)
+                .font(.system(size: 40))
+            Spacer()
+            Button(action: {
+                auth.signInAnonymously { result, error in
+                    if let error {
+                        print(error)
+                    } else {
+                        signedIn = true
+                    }
                 }
+            }) {
+                Text("Sign in")
             }
-        }) {
-            Text("Sign in")
+            .onAppear {
+            }
+            Spacer()
         }
-        .onAppear {
-            
-        }    }
+        
+    }
 }
 
 struct SignInView_Previews: PreviewProvider {

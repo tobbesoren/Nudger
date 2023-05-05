@@ -54,6 +54,8 @@ struct Nudge: Codable, Identifiable, Equatable {
     
     
     func getDoneThisDay(date: Date) -> Bool {
-        return doneDates.contains(where: { Calendar.current.isDate($0, inSameDayAs: date) })
+        let doneThisDay  = doneDates.contains(where: { Calendar.current.isDate($0, inSameDayAs: date) })
+        print(doneThisDay)
+        return doneThisDay
     }
 }

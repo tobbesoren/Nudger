@@ -67,6 +67,7 @@ class NotificationManager: ObservableObject {
     
     
     func deleteLocalNotifications(identifiers: [String]) {
+        
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: identifiers)
     }
 }

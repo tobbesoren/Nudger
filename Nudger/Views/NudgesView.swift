@@ -31,34 +31,41 @@ struct NudgesView: View {
             VStack {
                 DatePicker("", selection: $nudgesVM.date, displayedComponents: .date).onChange(of: nudgesVM.date) { date in
                     // For some reason, this isn't enough to update the already loaded rowViews.
+                    // UPDATE: Now it works, see rowView
                     nudgesVM.getNudgesFromFirestore()
                 }
                 .padding()
                 
                 // Listan uppdaterar inte som den skall när man byter datum. Kan vara så att läsningen från firestore inte hänger med?
                 // Det som inte hänger med är checkboxen.
-                List {
-                    ForEach(nudgesVM.nudges) { nudge in
-                        RowView(nudge: nudge, vm: nudgesVM)
-                    }
-                    
-                    .onDelete() { indexSet in
-                        for index in indexSet {
-                            nudgesVM.deleteFromFirestore(index: index)
+                if nudgesVM.nudges.count != 0 {
+                    List {
+                        ForEach(nudgesVM.nudges, id: \.self.uid) { nudge in
+                            RowView(nudge: nudge, vm: nudgesVM, date: nudgesVM.date)
                         }
-                        notificationManager.deleteLocalNotifications(
-                            identifiers: indexSet.map {notificationManager.notifications[$0].identifier}
-                        )
-                        notificationManager.reloadLocalNotifications()
+                        
+                        .onDelete() { indexSet in
+                            for index in indexSet {
+                                nudgesVM.deleteFromFirestore(index: index)
+                            }
+                            notificationManager.deleteLocalNotifications(
+                                identifiers: indexSet.map {notificationManager.notifications[$0].identifier}
+                            )
+                            notificationManager.reloadLocalNotifications()
+                        }
+                    }
+                    .listStyle(InsetGroupedListStyle())
+                } else {
+                    List {
+                        Text("No Nudges Yet")
                     }
                 }
-                .listStyle(InsetGroupedListStyle())
 //                .onChange(of: nudgesVM.nudges) { nudges in
 //                    localNudges = nudges
 //
 //                }
                 VStack {
-                    Text("Set Reminders")
+                    Text("(Debug) Set Reminders:")
                     List {
                         ForEach(notificationManager.notifications, id: \.identifier) { notification in
                             HStack {
@@ -119,32 +126,32 @@ struct NudgesView: View {
 private struct RowView: View {
     let nudge: Nudge
     let vm: NudgesVM
-    @State var done: Bool?
+    
+    // Ok, I think I solved the problem of the check box not updating, by sending the current date as an argument to this rowView.
+    // UPDATE: The weird thing is, I forgot to use this variable, and it still seems to work...
+    let date: Date
+    
+    
     var body: some View {
-        
+   
         HStack {
             Text(nudge.name)
             Spacer()
-            Text("\(nudge.getStreak())")
-                .onAppear{
-                    //print(nudge.doneDates.contains(where: { Calendar.current.isDate($0, inSameDayAs: vm.date) }))
-                }
+            Text(nudge.reminderTime)
             //Text("\(vm.date)")
             Spacer()
             Button(action: {
-            //done = !nudge.doneDates.contains(where: { Calendar.current.isDate($0, inSameDayAs: vm.date) })
-                //print(done)
-                vm.setDone(nudge: nudge)
+                vm.toggleDoneThisDay(nudge: nudge)
                 
             }) {
                 // I seem to have a bug: (If I create a nudge set in a future date,) the checkmark doesn't update when I change date.
-                // Oh, well, nothing seem to update as it should.
+                // Oh, well, nothing seem to update as it should. UPDATE: Think I got it! But it is still weird...
                 
                 Image(systemName: nudge.getDoneThisDay(date: vm.date) ? "checkmark.square" : "square")
                 //Text("\(nudge.getDoneThisDay(date: vm.date))" as String)
                 
             }.buttonStyle(.borderless) // Needed so only the button is clickable and not the entire rowView!
-            Text(nudge.reminderTime)
+            Text("\(nudge.getStreak())")
         }
     }
 }
