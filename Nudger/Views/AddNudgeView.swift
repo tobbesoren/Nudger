@@ -12,7 +12,7 @@ struct AddNudgeView: View {
     @ObservedObject var nudgesVM: NudgesVM
     @Binding var isPresented: Bool
     @State private var title = ""
-    @State private var date = Date()
+    @State private var selectedTime = Date()
     
     var body: some View {
         NavigationView {
@@ -22,7 +22,7 @@ struct AddNudgeView: View {
                 HStack {
                     Spacer()
                     Text("Set reminder time:")
-                    DatePicker("", selection: $date, displayedComponents: .hourAndMinute)
+                    DatePicker("", selection: $selectedTime, displayedComponents: .hourAndMinute)
                     Spacer()
                 }
                 .padding()
@@ -30,19 +30,28 @@ struct AddNudgeView: View {
                 Button("Add", action: {
                     
                     // Save notification!
-                    let dateComponents = Calendar.current.dateComponents([.hour, .minute], from: date)
+                    let reminderTimeDateComponents = Calendar.current.dateComponents([.hour, .minute], from: selectedTime)
                     let dateFormatter = DateFormatter()
                     dateFormatter.timeStyle = .short
                     
-                    let reminderTime = dateFormatter.string(from: date)
-                    nudgesVM.saveToFirestore(nudgeName: title, dateCreated: nudgesVM.date, reminderTime: reminderTime)
+                    let reminderTime = dateFormatter.string(from: selectedTime)
                     
-                    guard let hour = dateComponents.hour, let minute = dateComponents.minute else {return}
+                    guard let hour = reminderTimeDateComponents.hour, let minute = reminderTimeDateComponents.minute else {return}
                     notificationManager.createLocalNotification(title: title, hour: hour, minute: minute) { error in
                         if let error {
                             print(error)
                         }
                     }
+                    
+                    
+                    
+                    //Format date here!
+                    let selectedDayDateComponents = Calendar.current.dateComponents([.year, .month, .day], from: nudgesVM.date)
+                    if let dateCreated = Calendar.current.date(from: selectedDayDateComponents) {
+                        nudgesVM.saveToFirestore(nudgeName: title, dateCreated: dateCreated, reminderTime: reminderTime)
+                    }
+                    
+                    
                 isPresented = false
                 })
             }
