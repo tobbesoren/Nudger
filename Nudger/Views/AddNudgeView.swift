@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct AddNudgeView: View {
+    
     @ObservedObject var notificationManager: NotificationManager
     @ObservedObject var nudgesVM: NudgesVM
     @Binding var isPresented: Bool
@@ -43,9 +44,7 @@ struct AddNudgeView: View {
                         }
                     }
                     
-                    
-                    
-                    //Format date here!
+                    //Format date here! And save to firestore.
                     let selectedDayDateComponents = Calendar.current.dateComponents([.year, .month, .day], from: nudgesVM.date)
                     if let dateCreated = Calendar.current.date(from: selectedDayDateComponents) {
                         nudgesVM.saveToFirestore(nudgeName: title, dateCreated: dateCreated, reminderTime: reminderTime)
@@ -66,7 +65,6 @@ struct AddNudgeView: View {
                 Image(systemName: "xmark")
             })
     }
-        
 }
 
 struct AddNudgeView_Previews: PreviewProvider {
