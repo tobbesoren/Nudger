@@ -13,6 +13,7 @@ struct NoNotificationsPermission: View {
     @Binding var showingNoPermissionView: Bool
     
     var body: some View {
+        
         VStack {
             Spacer()
             Text("You Must Enable Notifications To Use This App")
@@ -33,7 +34,6 @@ struct NoNotificationsPermission: View {
                     notificationManager.requestAuthorization()
                     showingNoPermissionView = true
                 }
-                
             }
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
                 notificationManager.reloadAuthorizationStatus()
@@ -42,6 +42,7 @@ struct NoNotificationsPermission: View {
         .interactiveDismissDisabled()
     }
 }
+
 
 struct NoNotificationsPermission_Previews: PreviewProvider {
     static var previews: some View {

@@ -9,6 +9,7 @@ import Foundation
 import UserNotifications
 
 class NotificationManager: ObservableObject {
+    
     @Published private(set) var notifications: [UNNotificationRequest] = []
     @Published private(set) var authorizationStatus: UNAuthorizationStatus?
     

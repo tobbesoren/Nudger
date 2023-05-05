@@ -19,6 +19,7 @@
 		9C3F95F529FA8D6200DE7ABE /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C3F95F429FA8D6200DE7ABE /* SignInView.swift */; };
 		9C3F95F829FA919300DE7ABE /* NudgesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C3F95F729FA919300DE7ABE /* NudgesView.swift */; };
 		9C98B6162A052ABC00FFB100 /* StatisticView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C98B6152A052ABC00FFB100 /* StatisticView.swift */; };
+		9C98B6182A0599F900FFB100 /* DateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C98B6172A0599F900FFB100 /* DateExtension.swift */; };
 		9C9BB36329F52A57000F6F6C /* NudgerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C9BB36229F52A57000F6F6C /* NudgerApp.swift */; };
 		9C9BB36529F52A57000F6F6C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C9BB36429F52A57000F6F6C /* ContentView.swift */; };
 		9C9BB36729F52A58000F6F6C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9C9BB36629F52A58000F6F6C /* Assets.xcassets */; };
@@ -55,6 +56,7 @@
 		9C3F95F429FA8D6200DE7ABE /* SignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
 		9C3F95F729FA919300DE7ABE /* NudgesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NudgesView.swift; sourceTree = "<group>"; };
 		9C98B6152A052ABC00FFB100 /* StatisticView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticView.swift; sourceTree = "<group>"; };
+		9C98B6172A0599F900FFB100 /* DateExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateExtension.swift; sourceTree = "<group>"; };
 		9C9BB35F29F52A57000F6F6C /* Nudger.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nudger.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C9BB36229F52A57000F6F6C /* NudgerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NudgerApp.swift; sourceTree = "<group>"; };
 		9C9BB36429F52A57000F6F6C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -125,6 +127,14 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		9C98B6192A059A0500FFB100 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				9C98B6172A0599F900FFB100 /* DateExtension.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		9C9BB35629F52A57000F6F6C = {
 			isa = PBXGroup;
 			children = (
@@ -148,6 +158,7 @@
 		9C9BB36129F52A57000F6F6C /* Nudger */ = {
 			isa = PBXGroup;
 			children = (
+				9C98B6192A059A0500FFB100 /* Extensions */,
 				9C3F95F629FA8EF200DE7ABE /* Views */,
 				9C3F95F129F7DCDC00DE7ABE /* ViewModel */,
 				9C3F95F029F7DCC500DE7ABE /* Model */,
@@ -329,6 +340,7 @@
 				9C3F95ED29F5512A00DE7ABE /* Nudge.swift in Sources */,
 				9C3F95F829FA919300DE7ABE /* NudgesView.swift in Sources */,
 				9C3F95EF29F5516700DE7ABE /* NudgesVM.swift in Sources */,
+				9C98B6182A0599F900FFB100 /* DateExtension.swift in Sources */,
 				9C0B542A2A0165D200FCF78C /* AddNudgeView.swift in Sources */,
 				9C0B54282A01647B00FCF78C /* NotificationManager.swift in Sources */,
 				9C9BB36329F52A57000F6F6C /* NudgerApp.swift in Sources */,

@@ -34,6 +34,7 @@ struct NudgesView: View {
                     .padding()
                     .datePickerStyle(.compact)
             }
+            
             HStack {
                 Spacer()
                 Button(action: {
@@ -48,10 +49,9 @@ struct NudgesView: View {
                 
             }
             
-            
             if nudgesVM.nudges.count != 0 {
                 List {
-                    ForEach(nudgesVM.nudges, id: \.self.uid) { nudge in
+                    ForEach(nudgesVM.nudges) { nudge in
                         RowView(nudge: nudge, vm: nudgesVM)
                     }
                     
@@ -74,7 +74,6 @@ struct NudgesView: View {
 
             
             HStack {
-                
                 Button(action: {
                     showStatistics = true
                     
@@ -82,8 +81,6 @@ struct NudgesView: View {
                     Text("Statistics")
                 }
                 .buttonStyle(.borderless)
-              
-                
             }
         }
         .sheet(isPresented: $showingNoPermissionView) {
@@ -101,7 +98,6 @@ struct NudgesView: View {
                 StatisticView(nudgesVM: nudgesVM, showStatistics: $showStatistics)
             }
         }
-        
         .onAppear {
             notificationManager.reloadAuthorizationStatus()
             if notificationManager.authorizationStatus == .authorized {
@@ -119,15 +115,14 @@ struct NudgesView: View {
                 notificationManager.requestAuthorization()
                 showingNoPermissionView = true
             }
-            
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
             notificationManager.reloadAuthorizationStatus()
         }
         
-        
     }
 }
+
 
 private struct RowView: View {
     let nudge: Nudge
@@ -142,9 +137,8 @@ private struct RowView: View {
                 Spacer()
                 Text(nudge.reminderTime)
                     .padding([.leading, .trailing, .bottom])
-                
-                
             }
+            
             HStack {
                 Text("Current streak: \(nudge.getStreak())")
                     .padding([.leading, .trailing, .bottom])
@@ -156,12 +150,10 @@ private struct RowView: View {
                 }
                 .buttonStyle(.borderless) // Needed so only the button is clickable and not the entire rowView!
                 .padding([.leading, .trailing, .bottom])
-                
             }
         }
     }
 }
-
 
 
 struct NudgesView_Previews: PreviewProvider {

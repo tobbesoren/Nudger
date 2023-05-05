@@ -8,14 +8,13 @@
 import SwiftUI
 
 struct StatisticView: View {
+    
     @ObservedObject var nudgesVM: NudgesVM
     @State var selectedTimePeriod: TimePeriod = .week
     @State var selectedDate: Date = Date()
     @Binding var showStatistics: Bool
     
     @State var dateRange: [Date] = [Date(), Date()]
-    //@State var nudgesToShow: [Nudge] = []
-
     @State var calendar = Calendar(identifier: .iso8601)
     
     
@@ -30,8 +29,7 @@ struct StatisticView: View {
         NavigationView {
             VStack {
                 
-          
-                    HStack {
+                HStack {
                         DatePicker("Choose date:", selection: $selectedDate, displayedComponents: .date)
                             .datePickerStyle(.compact)
                             .padding()
@@ -46,24 +44,18 @@ struct StatisticView: View {
                     .onAppear {
                         dateRange = nudgesVM.getDateRange(selectedDate: selectedDate, range: selectedTimePeriod.rawValue)
                         nudgesVM.getNudgesRangeFromFirestore(to: dateRange[1])
-                        print(dateRange)
-                        print(nudgesVM.nudges)
-                        
                     }
                     .onChange(of: selectedTimePeriod) { _ in
                         dateRange = nudgesVM.getDateRange(selectedDate: selectedDate, range: selectedTimePeriod.rawValue)
                         nudgesVM.getNudgesRangeFromFirestore(to: dateRange[1])
-                        print(dateRange)
                     }
                     .onChange(of: selectedDate) { _ in
                         dateRange = nudgesVM.getDateRange(selectedDate: selectedDate, range: selectedTimePeriod.rawValue)
                         nudgesVM.getNudgesRangeFromFirestore(to: dateRange[1])
-                        print(dateRange)
                     }
                 
-                
                 List {
-                    ForEach(nudgesVM.nudges, id: \.self.uid) { nudge in
+                    ForEach(nudgesVM.nudges) { nudge in
                         VStack {
                             let numberOfDone = nudge.getDoneInDateRange(from: dateRange[0], to: dateRange[1])
                             if numberOfDone == 1 {
@@ -108,7 +100,6 @@ struct StatisticView: View {
                                 Text("Your current streak is \(streak).")
                                 Text("You just keep going, like a machine!")
                             }
-                            
                         }
                     }
                 }
@@ -127,9 +118,6 @@ struct StatisticView: View {
     }
 }
 
-func getTimeSpan() {
-    
-}
 
 struct StatisticView_Previews: PreviewProvider {
     static var previews: some View {
