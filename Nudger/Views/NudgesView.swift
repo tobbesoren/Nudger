@@ -10,10 +10,12 @@ import SwiftUI
 struct NudgesView: View {
     
     @StateObject var nudgesVM = NudgesVM()
-    @State var showingAddSheet = false
     @StateObject private var notificationManager = NotificationManager()
-    @State var showingNoPermissionView = false
     @State var localNudges: [Nudge]?
+    
+    @State var showingAddSheet = false
+    @State var showingNoPermissionView = false
+    @State var showStatistics = false
     
     private static var notificationDateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
@@ -28,73 +30,99 @@ struct NudgesView: View {
     
     var body: some View {
      
+        VStack {
+            HStack {
+                Text("Nudges")
+                    .font(.system(size: 30))
+                    .fontWeight(.bold)
+                    .padding()
+                DatePicker("", selection: $nudgesVM.date, displayedComponents: .date)
+                    .onChange(of: nudgesVM.date) { date in
+                        nudgesVM.loadNudgesFromFirestore()
+                    }
+                    .padding()
+            }
+            
+            
+            if nudgesVM.nudges.count != 0 {
+                List {
+                    ForEach(nudgesVM.nudges, id: \.self.uid) { nudge in
+                        RowView(nudge: nudge, vm: nudgesVM)
+                    }
+                    
+                    .onDelete() { indexSet in
+                        for index in indexSet {
+                            nudgesVM.deleteFromFirestore(index: index)
+                        }
+                        notificationManager.deleteLocalNotifications(
+                            identifiers: indexSet.map {notificationManager.notifications[$0].identifier}
+                        )
+                        notificationManager.reloadLocalNotifications()
+                    }
+                }
+                .listStyle(InsetGroupedListStyle())
+            } else {
+                List {
+                    Text("No Nudges Yet")
+                }
+            }
+
+            // Will be removed later
             VStack {
-                DatePicker("", selection: $nudgesVM.date, displayedComponents: .date).onChange(of: nudgesVM.date) { date in
-                    // For some reason, this isn't enough to update the already loaded rowViews.
-                    // UPDATE: Now it works, see rowView
-                    nudgesVM.getNudgesFromFirestore()
-                }
-                .padding()
-                
-                // Listan uppdaterar inte som den skall när man byter datum. Kan vara så att läsningen från firestore inte hänger med?
-                // Det som inte hänger med är checkboxen.
-                if nudgesVM.nudges.count != 0 {
-                    List {
-                        ForEach(nudgesVM.nudges, id: \.self.uid) { nudge in
-                            RowView(nudge: nudge, vm: nudgesVM)
-                        }
-                        
-                        .onDelete() { indexSet in
-                            for index in indexSet {
-                                nudgesVM.deleteFromFirestore(index: index)
-                            }
-                            notificationManager.deleteLocalNotifications(
-                                identifiers: indexSet.map {notificationManager.notifications[$0].identifier}
-                            )
-                            notificationManager.reloadLocalNotifications()
-                        }
-                    }
-                    .listStyle(InsetGroupedListStyle())
-                } else {
-                    List {
-                        Text("No Nudges Yet")
-                    }
-                }
-//                .onChange(of: nudgesVM.nudges) { nudges in
-//                    localNudges = nudges
-//
-//                }
-                VStack {
-                    Text("(Debug) Set Reminders:")
-                    List {
-                        ForEach(notificationManager.notifications, id: \.identifier) { notification in
-                            HStack {
-                                Text(notification.content.title)
-                                    .fontWeight(.semibold)
-                                Text(timeDisplayText(from: notification))
-                                    .fontWeight(.bold)
-                                Spacer()
-                            }
+                Text("(Debug) Set Reminders:")
+                List {
+                    ForEach(notificationManager.notifications, id: \.identifier) { notification in
+                        HStack {
+                            Text(notification.content.title)
+                                .fontWeight(.semibold)
+                            Text(timeDisplayText(from: notification))
+                                .fontWeight(.bold)
+                            Spacer()
                         }
                     }
                 }
+            }
+            
+            HStack {
+                Spacer()
                 Button(action: {
                     showingAddSheet = true
                     print("!")
                 }) {
                     Text("Add")
                 }
-                .sheet(isPresented: $showingNoPermissionView) {
-                    NavigationView {
-                        NoNotificationsPermission(notificationManager: notificationManager, showingNoPermissionView: $showingNoPermissionView)
-                    }
+                .buttonStyle(.bordered)
+                
+                Spacer()
+                
+                Button(action: {
+                    showStatistics = true
+                    
+                }) {
+                    Text("Stats")
                 }
-                .sheet(isPresented: $showingAddSheet) {
-                    NavigationView {
-                        AddNudgeView(notificationManager: notificationManager, nudgesVM: nudgesVM, isPresented: $showingAddSheet)
-                    }
-                }
-            }.onAppear {
+                .buttonStyle(.borderless)
+                Spacer()
+                
+            }
+        }
+        .sheet(isPresented: $showingNoPermissionView) {
+            NavigationView {
+                NoNotificationsPermission(notificationManager: notificationManager, showingNoPermissionView: $showingNoPermissionView)
+            }
+        }
+        .sheet(isPresented: $showingAddSheet) {
+            NavigationView {
+                AddNudgeView(notificationManager: notificationManager, nudgesVM: nudgesVM, isPresented: $showingAddSheet)
+            }
+        }
+        .sheet(isPresented: $showStatistics) {
+            NavigationView {
+                StatisticView(nudgesVM: nudgesVM, showStatistics: $showStatistics)
+            }
+        }
+        
+        .onAppear {
                 localNudges = nudgesVM.nudges
                 notificationManager.reloadAuthorizationStatus()
                 if notificationManager.authorizationStatus == .authorized {
@@ -102,7 +130,7 @@ struct NudgesView: View {
                 } else {
                     showingNoPermissionView = true
                 }
-                nudgesVM.getNudgesFromFirestore()
+                nudgesVM.loadNudgesFromFirestore()
             }
             .onChange(of: notificationManager.authorizationStatus) { authorizationStatus in
                 print("!!!!!!")
@@ -127,11 +155,6 @@ private struct RowView: View {
     let nudge: Nudge
     @ObservedObject var vm: NudgesVM
     
-    // Ok, I think I solved the problem of the check box not updating, by sending the current date as an argument to this rowView.
-    // UPDATE: The weird thing is, I forgot to use this variable, and it still seems to work...
-    //let date: Date
-    
-    
     var body: some View {
    
         HStack {
@@ -144,12 +167,7 @@ private struct RowView: View {
                 vm.toggleDoneThisDay(nudge: nudge)
                 
             }) {
-                // I seem to have a bug: (If I create a nudge set in a future date,) the checkmark doesn't update when I change date.
-                // Oh, well, nothing seem to update as it should. UPDATE: Think I got it! But it is still weird...
-                
                 Image(systemName: nudge.getDoneThisDay(date: vm.date) ? "checkmark.square" : "square")
-                //Text("\(nudge.getDoneThisDay(date: vm.date))" as String)
-                
             }.buttonStyle(.borderless) // Needed so only the button is clickable and not the entire rowView!
             Text("\(nudge.getStreak())")
         }

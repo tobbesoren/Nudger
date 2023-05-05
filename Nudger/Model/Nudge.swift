@@ -26,6 +26,20 @@ struct Nudge: Codable, Identifiable, Equatable {
     }
     
     
+    func getDoneInDateRange(from: Date, to: Date) -> Int {
+        
+        var counter = 0
+        
+        for date in doneDates {
+            if date >= from && date <= to {
+                counter += 1
+            }
+        }
+        
+        return counter
+    }
+    
+    
     func getStreak() -> Int {
         var checkNext = true
         var currentStreak = 0
