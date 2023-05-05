@@ -46,28 +46,25 @@ class NotificationManager: ObservableObject {
         // if we set:
         // dateComponents.weekday = 1
         // the notification will be set for sunday.
-        // If we don't set it, it will reccur every day.
+        // If we don't set it, it will recur every day.
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
         
         let notificationContent = UNMutableNotificationContent()
         notificationContent.title = title
         notificationContent.sound = .default
         // There is a lot to add here! .body = "Some text" for example.
+        // But I keep it simple for now.
         
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: notificationContent, trigger: trigger)
         
-        // Here we add the notification
+        // Here we add the notification:
         UNUserNotificationCenter.current().add(request, withCompletionHandler: completion)
     }
     
    
-        func delete(_ indexSet: IndexSet) {
-            
-        }
-    
+        
     
     func deleteLocalNotifications(identifiers: [String]) {
-        
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: identifiers)
     }
 }

@@ -8,8 +8,10 @@
 import SwiftUI
 
 struct NoNotificationsPermission: View {
+    
     @ObservedObject var notificationManager: NotificationManager
     @Binding var showingNoPermissionView: Bool
+    
     var body: some View {
         VStack {
             Spacer()
@@ -36,8 +38,6 @@ struct NoNotificationsPermission: View {
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
                 notificationManager.reloadAuthorizationStatus()
             }
-           
-            
         }
         .interactiveDismissDisabled()
     }

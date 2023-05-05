@@ -11,36 +11,41 @@ struct NudgesView: View {
     
     @StateObject var nudgesVM = NudgesVM()
     @StateObject private var notificationManager = NotificationManager()
-    @State var localNudges: [Nudge]?
     
     @State var showingAddSheet = false
     @State var showingNoPermissionView = false
     @State var showStatistics = false
     
-    private static var notificationDateFormatter: DateFormatter = {
-        let dateFormatter = DateFormatter()
-        dateFormatter.timeStyle = .short
-        return dateFormatter
-    }()
-    
-    private func timeDisplayText(from notification: UNNotificationRequest) -> String {
-        guard let nextTriggerDate = (notification.trigger as? UNCalendarNotificationTrigger)?.nextTriggerDate() else {return ""}
-        return Self.notificationDateFormatter.string(from: nextTriggerDate)
-    }
     
     var body: some View {
      
         VStack {
+            
             HStack {
                 Text("Nudges")
                     .font(.system(size: 30))
                     .fontWeight(.bold)
                     .padding()
+                Spacer()
                 DatePicker("", selection: $nudgesVM.date, displayedComponents: .date)
-                    .onChange(of: nudgesVM.date) { date in
+                    .onChange(of: nudgesVM.date) { _ in
                         nudgesVM.loadNudgesFromFirestore()
                     }
                     .padding()
+                    .datePickerStyle(.compact)
+            }
+            HStack {
+                Spacer()
+                Button(action: {
+                    showingAddSheet = true
+                    print("!")
+                }) {
+                    Image(systemName: "plus.circle")
+                        .imageScale(.large)
+                }
+                .buttonStyle(.borderless)
+                .padding([.trailing], 20)
+                
             }
             
             
@@ -67,42 +72,17 @@ struct NudgesView: View {
                 }
             }
 
-            // Will be removed later
-            VStack {
-                Text("(Debug) Set Reminders:")
-                List {
-                    ForEach(notificationManager.notifications, id: \.identifier) { notification in
-                        HStack {
-                            Text(notification.content.title)
-                                .fontWeight(.semibold)
-                            Text(timeDisplayText(from: notification))
-                                .fontWeight(.bold)
-                            Spacer()
-                        }
-                    }
-                }
-            }
             
             HStack {
-                Spacer()
-                Button(action: {
-                    showingAddSheet = true
-                    print("!")
-                }) {
-                    Text("Add")
-                }
-                .buttonStyle(.bordered)
-                
-                Spacer()
                 
                 Button(action: {
                     showStatistics = true
                     
                 }) {
-                    Text("Stats")
+                    Text("Statistics")
                 }
                 .buttonStyle(.borderless)
-                Spacer()
+              
                 
             }
         }
@@ -116,36 +96,34 @@ struct NudgesView: View {
                 AddNudgeView(notificationManager: notificationManager, nudgesVM: nudgesVM, isPresented: $showingAddSheet)
             }
         }
-        .sheet(isPresented: $showStatistics) {
+        .sheet(isPresented: $showStatistics, onDismiss: {nudgesVM.loadNudgesFromFirestore()}) {
             NavigationView {
                 StatisticView(nudgesVM: nudgesVM, showStatistics: $showStatistics)
             }
         }
         
         .onAppear {
-                localNudges = nudgesVM.nudges
-                notificationManager.reloadAuthorizationStatus()
-                if notificationManager.authorizationStatus == .authorized {
-                    showingNoPermissionView = false
-                } else {
-                    showingNoPermissionView = true
-                }
-                nudgesVM.loadNudgesFromFirestore()
+            notificationManager.reloadAuthorizationStatus()
+            if notificationManager.authorizationStatus == .authorized {
+                showingNoPermissionView = false
+            } else {
+                showingNoPermissionView = true
             }
-            .onChange(of: notificationManager.authorizationStatus) { authorizationStatus in
-                print("!!!!!!")
-                if authorizationStatus == .authorized {
-                    notificationManager.reloadLocalNotifications()
-                    showingNoPermissionView = false
-                } else {
-                    notificationManager.requestAuthorization()
-                    showingNoPermissionView = true
-                }
-                
+            nudgesVM.loadNudgesFromFirestore()
+        }
+        .onChange(of: notificationManager.authorizationStatus) { authorizationStatus in
+            if authorizationStatus == .authorized {
+                notificationManager.reloadLocalNotifications()
+                showingNoPermissionView = false
+            } else {
+                notificationManager.requestAuthorization()
+                showingNoPermissionView = true
             }
-            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
-                notificationManager.reloadAuthorizationStatus()
-            }
+            
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            notificationManager.reloadAuthorizationStatus()
+        }
         
         
     }
@@ -156,20 +134,30 @@ private struct RowView: View {
     @ObservedObject var vm: NudgesVM
     
     var body: some View {
-   
-        HStack {
-            Text(nudge.name)
-            Spacer()
-            Text(nudge.reminderTime)
-            //Text("\(vm.date)")
-            Spacer()
-            Button(action: {
-                vm.toggleDoneThisDay(nudge: nudge)
+        VStack {
+            HStack {
+                Text(nudge.name)
+                    .fontWeight(.semibold)
+                    .padding([.leading, .trailing, .bottom])
+                Spacer()
+                Text(nudge.reminderTime)
+                    .padding([.leading, .trailing, .bottom])
                 
-            }) {
-                Image(systemName: nudge.getDoneThisDay(date: vm.date) ? "checkmark.square" : "square")
-            }.buttonStyle(.borderless) // Needed so only the button is clickable and not the entire rowView!
-            Text("\(nudge.getStreak())")
+                
+            }
+            HStack {
+                Text("Current streak: \(nudge.getStreak())")
+                    .padding([.leading, .trailing, .bottom])
+                Spacer()
+                Button(action: {
+                    vm.toggleDoneThisDay(nudge: nudge)
+                }) {
+                    Image(systemName: nudge.getDoneThisDay(date: vm.date) ? "checkmark.square" : "square")
+                }
+                .buttonStyle(.borderless) // Needed so only the button is clickable and not the entire rowView!
+                .padding([.leading, .trailing, .bottom])
+                
+            }
         }
     }
 }

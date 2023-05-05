@@ -64,14 +64,51 @@ struct StatisticView: View {
                 
                 List {
                     ForEach(nudgesVM.nudges, id: \.self.uid) { nudge in
-                        HStack {
-                            if nudge.getDoneInDateRange(from: dateRange[0], to: dateRange[1]) == 1 {
+                        VStack {
+                            let numberOfDone = nudge.getDoneInDateRange(from: dateRange[0], to: dateRange[1])
+                            if numberOfDone == 1 {
                                 Text("\(nudge.name) has been done 1 time this \(selectedTimePeriod.rawValue)")
-                            } else if nudge.getDoneInDateRange(from: dateRange[0], to: dateRange[1]) == 0 {
-                                Text("\(nudge.name) hasn't been done yet this \(selectedTimePeriod.rawValue)")
+                            } else if numberOfDone == 0 {
+                                Text("\(nudge.name) hasn't been done this \(selectedTimePeriod.rawValue).")
                             } else {
                                 Text("\(nudge.name) has been done \(nudge.getDoneInDateRange(from: dateRange[0], to: dateRange[1])) times this \(selectedTimePeriod.rawValue)")
                             }
+                            let streak = nudge.getStreak()
+                            switch streak {
+                            case 0:
+                                Text("You haven't got a streak going at the moment.")
+                            case 1:
+                                Text("Your current streak is \(streak).")
+                                Text("It's a start!")
+                            case 2..<7:
+                                Text("Your current streak is \(streak).")
+                                Text("Not bad!")
+                            case 7:
+                                Text("Your current streak is \(streak).")
+                                Text("One week today! Way to go!")
+                            case 8..<14:
+                                Text("Your current streak is \(streak).")
+                                Text("Keep it up!")
+                            case 14:
+                                Text("Your current streak is \(streak).")
+                                Text("Two weeks! Time for a celebration.")
+                            case 15..<21:
+                                Text("Your current streak is \(streak).")
+                                Text("Go! Go! Go!")
+                            case 21:
+                                Text("Your current streak is \(streak).")
+                                Text("Wow! Three weeks straight!")
+                            case 22..<28:
+                                Text("Your current streak is \(streak).")
+                                Text("Nothing can stop you now!")
+                            case 28:
+                                Text("Your current streak is \(streak).")
+                                Text("FOUR. WEEKS. AND. YOU. JUST. KEEP. GOING!")
+                            default:
+                                Text("Your current streak is \(streak).")
+                                Text("You just keep going, like a machine!")
+                            }
+                            
                         }
                     }
                 }
