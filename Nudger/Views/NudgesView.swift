@@ -41,7 +41,7 @@ struct NudgesView: View {
                 if nudgesVM.nudges.count != 0 {
                     List {
                         ForEach(nudgesVM.nudges, id: \.self.uid) { nudge in
-                            RowView(nudge: nudge, vm: nudgesVM, date: nudgesVM.date)
+                            RowView(nudge: nudge, vm: nudgesVM)
                         }
                         
                         .onDelete() { indexSet in
@@ -125,11 +125,11 @@ struct NudgesView: View {
 
 private struct RowView: View {
     let nudge: Nudge
-    let vm: NudgesVM
+    @ObservedObject var vm: NudgesVM
     
     // Ok, I think I solved the problem of the check box not updating, by sending the current date as an argument to this rowView.
     // UPDATE: The weird thing is, I forgot to use this variable, and it still seems to work...
-    let date: Date
+    //let date: Date
     
     
     var body: some View {
