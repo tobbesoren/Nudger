@@ -3,7 +3,7 @@
 //  Nudger
 //
 //  Created by Tobias Sörensson on 2023-04-23.
-//
+// git test
 
 import SwiftUI
 import FirebaseCore
@@ -12,11 +12,9 @@ import FirebaseCore
 class AppDelegate: NSObject, UIApplicationDelegate {
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-    FirebaseApp.configure()
-
-
-    return true
-  }
+      FirebaseApp.configure()
+      return true
+    }
 }
 
 

@@ -6,6 +6,7 @@
 //
 
 import XCTest
+
 @testable import Nudger
 
 final class NudgerTests: XCTestCase {
